@@ -1,26 +1,36 @@
 "use client";
 import { useReducer } from "react";
 
-function reducer(state, action) {
-  console.log(action.type);
-}
-
-const initialState = { name: "Taylor", age: 42 };
-
-export default function Form() {
-  const [state, dispatch] = useReducer(reducer, initialState);
-
-  function handleClick() {
-    dispatch({ type: "button click" });
+const reducer = (state, action) => {
+  switch (action.type) {
+    case "increment":
+      return { count: state.count + 1 };
+    case "decrement":
+      return { count: state.count + 1 };
+    default:
+      console.log(error);
   }
+};
 
-  function handleMouseMove() {
-    dispatch({ type: "mouse move" });
-  }
+const shoppingCart = () => {
+  const [state, dispatch] = useReducer(reducer, { count: 0 });
+
+  const increment = () => {
+    dispatch({ type: "increment" });
+  };
+
+  const decrement = () => {
+    dispatch({ type: "decrement" });
+  };
 
   return (
-    <button onClick={handleClick} onMouseMove={handleMouseMove}>
-      Click Me in Responsive Mode
-    </button>
+    <>
+      <div>Hello World</div>
+      <div>{state.count}</div>
+      <button onClick={increment}>Increment</button>
+      <button onClick={decrement}>Decrement</button>
+    </>
   );
-}
+};
+
+export default shoppingCart;

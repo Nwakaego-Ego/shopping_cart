@@ -11,7 +11,7 @@ const reducer = (state, action) => {
     case "Add_to_cart":
       return { ...state, cartItem: [...state.cartItem, action.payload] };
     case "Edit":
-      return { ...state, editItem: [...state.edit, action.payload] };
+      return { ...state, cartItem: action.payload };
     default:
       console.log(error);
   }
@@ -60,10 +60,16 @@ const shoppingCart = () => {
     );
   };
 
-  function handleUpdate(index, newItem) {
-    const editCartItem = [...state.cartItem];
-    editCartItem[index] = newItem;
-    dispatch({ type: "Edit", payload: editCartItem });
+  function handleEditName(index, newItem) {
+    const editCartItemName = [...state.cartItem];
+    editCartItemName[index] = { ...editCartItemName[index], name: newItem };
+    dispatch({ type: "Edit", payload: editCartItemName });
+  }
+
+  function handleEditPrice(index, newPrice) {
+    const editCartItemPrice = [...state.cartItem];
+    editCartItemPrice[index] = { ...editCartItemPrice[index], price: newPrice };
+    dispatch({ type: "Edit", payload: editCartItemPrice });
   }
 
   return (
@@ -90,9 +96,9 @@ const shoppingCart = () => {
               {item.name}
               <button
                 onClick={() => {
-                  const newItem = prompt("Enter a new value ");
+                  const newItem = prompt("Enter a new item....");
                   if (newItem !== null) {
-                    handleUpdate(index, newItem);
+                    handleEditName(index, newItem);
                   }
                 }}
               >
@@ -100,19 +106,20 @@ const shoppingCart = () => {
               </button>
             </div>
             <div>
-              {item.quantity}
+              {" "}
+              {item.price}
               <button
                 onClick={() => {
-                  const newItem = prompt("Enter a new value ");
-                  if (newItem !== null) {
-                    handleUpdate(index, newItem);
+                  const newPrice = prompt("Enter a new price.....");
+                  if (newPrice !== null) {
+                    handleEditPrice(index, newPrice);
                   }
                 }}
               >
                 <FaEdit className="paste" />
               </button>
             </div>
-            <div> {item.price}</div>
+            <div>{item.quantity}</div>
           </div>
         );
       })}

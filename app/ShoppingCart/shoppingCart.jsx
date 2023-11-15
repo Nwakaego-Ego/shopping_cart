@@ -1,19 +1,16 @@
 "use client";
+
 import React, { useReducer, useState } from "react";
 import { FaEdit, FaTrash } from "react-icons/fa";
 
 const reducer = (state, action) => {
   switch (action.type) {
-    case "Add_Product":
-      return { ...state, products: [...state.products, action.payload] };
     case "Add_to_cart":
       return { ...state, cartItem: [...state.cartItem, action.payload] };
     case "Edit":
       return { ...state, cartItem: action.payload };
     case "Delete_Cart":
       return { ...state, cartItem: action.payload };
-    case "Unit_Price":
-      return { ...state, products: action.payload };
     default:
       console.error("Unknown action type");
       return state;
@@ -22,44 +19,29 @@ const reducer = (state, action) => {
 
 const ShoppingApp = () => {
   const [state, dispatch] = useReducer(reducer, {
-    count: 0,
     cartItem: [],
-    editItem: [],
-    deleteItem: [],
-    products: [],
-    unit: [],
   });
 
   const [newProduct, setNewProduct] = useState({
     name: "",
     quantity: 0,
-    price: 0,
   });
 
-  const [price, setPrice] = useState();
-
   const handleChange = (e) => {
-    if (e.target.name === "quantity") {
-      const quantity = parseInt(e.target.value, 10);
-      const newPrice = quantity * 10;
-      setPrice(newPrice);
-      setNewProduct({
-        ...newProduct,
-        quantity,
-      });
-    } else {
-      setNewProduct({ ...newProduct, [e.target.name]: e.target.value });
-    }
+    setNewProduct({ ...newProduct, [e.target.name]: e.target.value });
   };
 
   const cartLog = () => {
-    dispatch({ type: "Add_to_cart", payload: newProduct });
-    setNewProduct({ name: "", quantity: 0, price });
+    const quantity = parseInt(newProduct.quantity, 10);
+    const price = quantity * 10;
+    const newItem = { ...newProduct, price };
+    dispatch({ type: "Add_to_cart", payload: newItem });
+    setNewProduct({ name: "", quantity: 0 });
   };
 
   const totalPrice = () => {
     return state.cartItem.reduce(
-      (total, item) => total + price * item.quantity,
+      (total, item) => total + item.price * item.quantity,
       0
     );
   };
@@ -70,10 +52,14 @@ const ShoppingApp = () => {
     dispatch({ type: "Edit", payload: editCartItemName });
   };
 
-  const handleEditPrice = (index, newPrice) => {
-    const editCartItemPrice = [...state.cartItem];
-    editCartItemPrice[index] = { ...editCartItemPrice[index], price: newPrice };
-    dispatch({ type: "Edit", payload: editCartItemPrice });
+  const handleEditQuantity = (index, newQuantity) => {
+    const editCartItemQuantity = [...state.cartItem];
+    editCartItemQuantity[index] = {
+      ...editCartItemQuantity[index],
+      quantity: newQuantity,
+      price: newQuantity * 10,
+    };
+    dispatch({ type: "Edit", payload: editCartItemQuantity });
   };
 
   const handleDelete = (index) => {
@@ -82,79 +68,81 @@ const ShoppingApp = () => {
   };
 
   return (
-    <>
-      <div>Hello World</div>
+    <div className="container mx-auto my-8 p-8 bg-gray-100 rounded-lg">
+      <div className="text-3xl font-bold mb-4">Shopping App</div>
 
-      {state.cartItem.map((item, index) => (
-        <div key={index}>
-          <div>
-            {item.name}
-            <button
-              onClick={() => {
-                const newItem = prompt("Enter a new item....");
-                if (newItem !== null) {
-                  handleEditName(index, newItem);
-                }
-              }}
-            >
-              <FaEdit className="paste" />
-            </button>
-          </div>
-          {/* <div>
-            {item.price}
-            <button
-              onClick={() => {
-                const newPrice = prompt("Enter a new price.....");
-                if (newPrice !== null) {
-                  handleEditPrice(index, newPrice);
-                }
-              }}
-            >
-              <FaEdit className="paste" />
-            </button>
-          </div> */}
-          <div>{price}</div>
-          <div>{item.quantity}</div>
-          <div>
-            <button onClick={() => handleDelete(index)}>
-              <FaTrash className="trash" />
-            </button>
-          </div>
-        </div>
-      ))}
+      <div className="grid grid-cols-3 gap-4">
+        {state.cartItem.map((item, index) => (
+          <div key={index} className="border p-4 rounded-md">
+            <div className="mb-2">
+              <span className="font-bold">{item.name}</span>
+              <button
+                onClick={() => {
+                  const newItem = prompt("Enter a new item....");
+                  if (newItem !== null) {
+                    handleEditName(index, newItem);
+                  }
+                }}
+                className="ml-2 text-blue-500"
+              >
+                <FaEdit className="inline" />
+              </button>
+            </div>
 
-      <div>Total Price : ${totalPrice()}</div>
-      <div>
-        <h2>Add a New Product</h2>
-        <label>Name:</label>
+            <div className="mb-2">
+              {item.quantity}
+              <button
+                onClick={() => {
+                  const newQuantity = prompt("Enter a new quantity....");
+                  if (newQuantity !== null) {
+                    handleEditQuantity(index, newQuantity);
+                  }
+                }}
+                className="ml-2 text-blue-500"
+              >
+                <FaEdit className="inline " />
+              </button>
+            </div>
+            <div className="mb-2">Price: ${item.price}</div>
+            <div>
+              <button onClick={() => handleDelete(index)}>
+                <FaTrash className="text-red-500" />
+              </button>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      <div className="mt-4">
+        <div className="text-xl font-bold">Total Price: ${totalPrice()}</div>
+      </div>
+
+      <div className="mt-8">
+        <h2 className="text-2xl font-bold mb-4">Add a New Product</h2>
+        <label className="block mb-2">Product:</label>
         <input
           type="text"
           name="name"
           value={newProduct.name}
           onChange={handleChange}
+          className="border p-2 rounded-md"
         />
-        <label>Quantity:</label>
+        <label className="block my-2">Quantity:</label>
         <input
           type="number"
           name="quantity"
           value={newProduct.quantity}
           onChange={handleChange}
-        />
-        <label>Price:</label>
-        <input
-          type="number"
-          name="price"
-          value={price}
-          onChange={handleChange}
+          className="border p-2 rounded-md"
         />
         <button
           onClick={cartLog}
-          className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+          className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded mt-4 ml-5"
         >
           Add to cart
         </button>
       </div>
-    </>
+    </div>
   );
 };
 
